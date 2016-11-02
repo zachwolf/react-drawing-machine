@@ -1,23 +1,67 @@
-'use strict';
+import React, { Children, cloneElement } from 'react'
 
-import React from 'react';
+require('styles//Canvas.css')
 
-require('styles//Canvas.css');
+class Canvas extends React.Component {
+  componentDidMount() {
+    this._setWindowSize()
+    this._bindWindowEvents()
+    this.setState({
+      context: this.canvas.getContext('2d')
+    })
+  }
 
-class CanvasComponent extends React.Component {
+  componentWillUnmount() {
+    this._unbindWindowEvents()
+  }
+
+  state = {
+    height: NaN,
+    width: NaN,
+    context: null
+  }
+
   render() {
+    const canvas = this._renderCanvas()
+    const { context } = this.state
+
     return (
-      <div className="canvas-component">
-        Please edit src/components///CanvasComponent.js to update this component!
+      <div>
+        { canvas }
+        { context && Children.map(this.props.children, child => cloneElement(child, { context })) }
       </div>
-    );
+    )
+  }
+
+  _renderCanvas () {
+    const { height, width } = this.state
+
+    return (
+      <canvas
+        height={ height }
+        width={ width }
+        ref={ canvas => this.canvas = canvas }/>
+    )
+  }
+
+  _bindWindowEvents () {
+    window.addEventListener('resize', () => this._setWindowSize())
+  }
+
+  _unbindWindowEvents () {
+    window.removeEventListner('resize')
+  }
+
+  _setWindowSize () {
+    this.setState({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
   }
 }
 
-CanvasComponent.displayName = 'CanvasComponent';
-
 // Uncomment properties you need
-// CanvasComponent.propTypes = {};
-// CanvasComponent.defaultProps = {};
+// Canvas.propTypes = {}
+// Canvas.defaultProps = {}
 
-export default CanvasComponent;
+export default Canvas
